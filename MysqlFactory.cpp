@@ -22,12 +22,14 @@ bool MysqlFactory::init()
 
 bool MysqlFactory::saveWordInfo(const Point& location, string name, int pageId)
 {
+    this->id = this->getNewWordId();
+    if (this->id == -1) return false;
+
     string sqlStr = "INSERT INTO word ";
-    sqlStr += "(pageId, name, locationX, locationY) ";
-    sqlStr += "VALUES (" + to_string(pageId) + ", '" + name + "', " + 
+    sqlStr += "(id, pageId, name, locationX, locationY) ";
+    sqlStr += "VALUES (" + to_string(this->id) + ", " + to_string(pageId) + ", '" + name + "', " +
         to_string(location.x) + ", " + to_string(location.y) + ") ";
 
-    //cout << sqlStr << endl;
     return this->update(sqlStr);
 }
 
@@ -50,15 +52,41 @@ bool MysqlFactory::saveStrokeInfo(const Path& path)
     }
     string radius = ss.str();
     radius = radius.substr(0, radius.size() - 1);//删除最后逗号
-    //todo 存储
-    return false;
+
+    //拼接sql语句
+    string sqlStr = "INSERT INTO stroke ";
+    sqlStr += "(wordId, startX, startY, endX, endY, path, radius) "; 
+    sqlStr += "VALUES (" + to_string(this->id) + ", " + to_string(from.x) + ", " + to_string(from.y) + ", ";
+    sqlStr += to_string(to.x) + ", " + to_string(to.y) + ", '" + move + "', '" + radius + "')";
+
+    return this->update(sqlStr);
 }
 
 bool MysqlFactory::update(const string sqlStr)
 {
     mysql_query(&myCont, "SET NAMES GBK"); //设置编码格式,否则在cmd下无法显示中文  
     int res = mysql_query(&myCont, sqlStr.c_str());//执行插入语句，mysql_query如果插入成功，零；如果出现一个错误，非零。  
-    return res != 0;
+    return res == 0;
+}
+
+int MysqlFactory::getNewWordId()
+{
+    int res = mysql_query(&myCont, "SELECT id FROM word ORDER BY id DESC LIMIT 1");//执行查询语句，mysql_query如果查询成功，零；如果出现一个错误，非零。  
+    if (!res)
+    {
+        result = mysql_store_result(&myCont);//保存查询到的数据到result  
+        if (result)
+        {
+            if (sql_row = mysql_fetch_row(result))//获取具体的数据  
+            {
+                return stoi(sql_row[0]);
+            }
+            else {//当前为第一个数据
+                return 1;
+            }
+        }
+    }
+    return -1;//失败
 }
 
 MysqlFactory::~MysqlFactory()

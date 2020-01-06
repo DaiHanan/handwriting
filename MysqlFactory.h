@@ -35,6 +35,8 @@ public:
 private:
 	static MysqlFactory* instance;//实例对象
 
+	int id;//该字体的编号
+
 	const string host = "47.102.149.16";//服务器IP localhost
 	const string user = "root";//用户名
 	const string password = "liyulin";//用户密码
@@ -54,5 +56,9 @@ private:
 	执行插入操作
 	*/
 	bool update(const string sqlStr);
+	/*
+	获得下一个插入的字体的编号 -1时失败
+	*/
+	int getNewWordId();
 };
 

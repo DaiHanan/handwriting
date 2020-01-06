@@ -7,7 +7,8 @@ BmpInfo::BmpInfo(string path) : filePath(std::move(path)) {
         this->sourcePath = this->filePath;
     }
     this->initInfo();
-    this->initVal();
+    if(this->isSuccess)
+        this->initVal();
 }
 
 bool BmpInfo::getDIBColor(int X, int Y, BYTE* r, BYTE* g, BYTE* b) {

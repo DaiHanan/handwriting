@@ -56,7 +56,7 @@ private:
      * @return 是否出界
      */
     bool checkPoint(const Point& point);
-
+   
     /**
      * 计算端点
      * @param points 端点集合

@@ -21,7 +21,7 @@ void Calculate::run() {
 void Calculate::save()
 {
     this->saveImage();
-    this->saveSql();
+    //this->saveSql();
 }
 
 void Calculate::toThin() {
@@ -387,8 +387,24 @@ void Calculate::saveSql()
     if (!factory) {
         return;
     }
-    Point point(333, 999);
+    //计算左上角坐标并存储
+    Point point(-1, -1);
+    string& sourcePath = BmpInfo::sourcePath;
+    int fromIdx = sourcePath.find('(');
+    if (fromIdx++ != string::npos) {//有位置信息
+        istringstream ss(sourcePath.substr(fromIdx));//字符流提取位置
+        int x, y;
+        char tmp;
+        ss >> x >> tmp >> y;
+        point = Point(x, y);
+    }
     factory->saveWordInfo(point);
+    for (const Path& path : this->paths) {
+        if (!factory->saveStrokeInfo(path)) {
+            cout << endl << path.getFromPoint().x << "," << path.getFromPoint().y << "到" 
+                << path.getToPoint().x << "," << path.getToPoint().y << " 笔画数据sql存储失败!" << endl;
+        }
+    }
 }
 
 
