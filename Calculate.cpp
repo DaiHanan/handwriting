@@ -21,7 +21,7 @@ void Calculate::run() {
 void Calculate::save()
 {
     this->saveImage();
-    //this->saveSql();
+    //this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行
 }
 
 void Calculate::toThin() {
