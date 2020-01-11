@@ -378,7 +378,7 @@ float Calculate::getRadius(const Point& point) {
 
 void Calculate::saveImage()
 {
-    ImageFactory::output(this->val);
+    ImageFactory::output(this->val, this->source);
 }
 
 void Calculate::saveSql()
