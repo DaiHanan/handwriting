@@ -25,9 +25,13 @@ public:
      */
     void printPoints();
     /**
-     * 打印矩阵
+     * 打印像素矩阵
      */
     void printMatrix();
+    /*
+    打印源图像像素矩阵
+    */
+    void printSourceMatrix();
     /**
      * 打印路径
      */

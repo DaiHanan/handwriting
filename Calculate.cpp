@@ -21,7 +21,7 @@ void Calculate::run() {
 void Calculate::save()
 {
     this->saveImage();
-    //this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行
+    //this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,to余荔恒
 }
 
 void Calculate::toThin() {
@@ -342,6 +342,19 @@ void Calculate::printMatrix() {
     Log::write();
 }
 
+void Calculate::printSourceMatrix() {
+    ostringstream& ss = Log::ss;
+    ss << "源图像矩阵：" << endl;
+    for (int i = 0; i < this->height; i++) {
+        for (int j = 0; j < this->width; j++) {
+            ss << this->source[i][j] << " ";
+        }
+        ss << endl;
+    }
+    ss << endl;
+    Log::write();
+}
+
 bool Calculate::isAllPassed() {
     for (int x = 0; x < this->height; x++) {
         for (int y = 0; y < this->width; y++) {
@@ -373,7 +386,26 @@ void Calculate::getRadii() {
 }
 
 float Calculate::getRadius(const Point& point) {
-    return 1;
+    //利用源图像像素矩阵计算半径
+    float radius = this->width;
+    /*
+    方案一：
+        上下左右四个方向的最小半径作为该点半径
+    */
+    const vector<vector<int>> directs = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+    for (const vector<int>& direct : directs) {//四个方向
+        Point nowPoint = point;
+        int nowRadius = 1;
+        //计算半径
+        while (Point::check(nowPoint, this->height - 1, this->width - 1) && this->source[nowPoint.x][nowPoint.y] > 0) {
+            nowPoint.x += direct[0];
+            nowPoint.y += direct[1];
+            nowRadius++;
+        }
+        radius = min(radius, nowRadius);
+    }
+
+    return radius;
 }
 
 void Calculate::saveImage()
