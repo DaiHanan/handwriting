@@ -6,8 +6,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    //获得路径
-    string thinPath = "D:/01_files/05_upward/02_school/02_handwriting/02_pics/page01/words/004(242,317).bmp", sourcePath;
+    //获得路径      
+    string thinPath = "D:/01_files/05_upward/02_school/02_handwriting/02_pics/page01/words/004(255,370).bmp", sourcePath;
     if (argc > 1)
         thinPath = argv[1];
     sourcePath = thinPath.substr(0, thinPath.size() - 4) + "_s.bmp";
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     //获得操作时矩阵
     //calculate->printMatrix();
     //获得路径
-    //calculate->printPaths();
+    calculate->printPaths();
 
     //保存
     calculate->save();

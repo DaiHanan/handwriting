@@ -20,7 +20,7 @@ void Calculate::run() {
 
 void Calculate::save()
 {
-    this->saveImage();
+    //this->saveImage();
     //this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,to余荔恒
 }
 
@@ -118,7 +118,7 @@ bool Calculate::pointsComparator(const Point& point1, const Point& point2) {
 
 void Calculate::getPath() {
     int color = 1;//路径颜色
-    //取出所有端点，每取得一个路径，删掉已遍历端点重新搜索并排序路径
+    //取出所有端点，每取得一个路径，删掉已遍历端点重新搜索并排序端点
     vector<Point> points = this->points;
     while (!points.empty()) {
         for (int i = 0; i < points.size(); i++) {
@@ -128,7 +128,7 @@ void Calculate::getPath() {
                 vector<int> move;
                 this->searchNextPoint(point, move, color);//递归找路径
                 this->paths.emplace_back(Path(point, move));//找到后加入路径数组
-                //取得一个路径，重新搜索并排序路径
+                //取得一个路径，重新搜索并排序端点
                 points.erase(points.begin() + i);
                 this->getPoints(points);
                 this->sortPoints(points);
@@ -392,7 +392,7 @@ float Calculate::getRadius(const Point& point) {
     方案一：
         上下左右四个方向的最小半径作为该点半径
     */
-    const vector<vector<int>> directs = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+    vector<vector<int>> directs = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
     for (const vector<int>& direct : directs) {//四个方向
         Point nowPoint = point;
         int nowRadius = 1;
@@ -401,6 +401,22 @@ float Calculate::getRadius(const Point& point) {
             nowPoint.x += direct[0];
             nowPoint.y += direct[1];
             nowRadius++;
+        }
+        radius = min(radius, nowRadius);
+    }
+    /*
+    方案二：
+        追加斜方向
+    */
+    directs = { {-1, 1}, {-1, -1}, {1, -1}, {1, 1} };
+    for (const vector<int>& direct : directs) {//四个方向
+        Point nowPoint = point;
+        float nowRadius = 0.7;
+        //计算半径
+        while (Point::check(nowPoint, this->height - 1, this->width - 1) && this->source[nowPoint.x][nowPoint.y] > 0) {
+            nowPoint.x += direct[0];
+            nowPoint.y += direct[1];
+            nowRadius += 1.4;
         }
         radius = min(radius, nowRadius);
     }
