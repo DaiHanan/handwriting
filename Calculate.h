@@ -85,10 +85,10 @@ private:
      * 计算路径辅助函数
      * 递归搜索该路径下一个节点
      * @param pre 当前节点坐标
-     * @param move 从头节点到当前节点的动作数组
+     * @param path 当前构造路径
      * @param color 当前路径颜色
      */
-    void searchNextPoint(const Point& now, vector<int>& move, int color);
+    void searchNextPoint(const Point& now, Path& path, int color);
     /**
      * 递归-计算从preDirect方向来的某点延伸时的大概率方向
      * 递归结束条件：出现两次相同方向或遇到下一个多叉路口
@@ -110,6 +110,11 @@ private:
      * @return 是否走完
      */
     bool isAllPassed();
+    /**
+     * 判断路径是否已满足结束条件
+     * @return 是否结束路径
+     */
+    bool isPathFinished(const Path& path, int nextStep);
 
     /**
      * 计算全部绘制半径

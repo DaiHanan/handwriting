@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     //获得操作时矩阵
     //calculate->printMatrix();
     //获得路径
-    calculate->printPaths();
+    //calculate->printPaths();
 
     //保存
     calculate->save();

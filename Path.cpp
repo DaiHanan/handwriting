@@ -4,6 +4,7 @@
 
 #include "Path.h"
 #include "Log.h"
+#include <algorithm>
 
 Path::Path(const Point& from) {
     this->initFromPoint(from);
@@ -32,8 +33,40 @@ void Path::initFromPoint(const Point& point) {
 }
 
 bool Path::pushMove(int step) {
+    vector<int>& move = this->move;
+    int size = move.size();
+
     if (Neighbor::next(this->to, step)) {//如果移动成功
-        this->move.push_back(step);//增加步骤
+        move.push_back(step);//增加步骤
+        this->radius.emplace_back(0);//扩大半径数组
+
+        //更新连续方向数组
+        if (//出现4次以上，注意会重复出现
+            size > 3 &&
+            find_if_not(
+                move.rbegin(), move.rend(), 
+                [step] (int item) {return item == step; }) - move.rbegin() >= 4
+            ) {
+            this->moveMore.emplace_back(step);
+        }
+        else if (//出现三次
+            size >= 3 &&
+            find_if_not(
+                move.rbegin(), move.rend(),
+                [step](int item) {return item == step; }) - move.rbegin() == 3
+            ) {
+            this->move3.emplace_back(step);
+        }
+        else if (//出现两次次
+            size >= 2 &&
+            find_if_not(
+                move.rbegin(), move.rend(),
+                [step](int item) {return item == step; }) - move.rbegin() == 2
+            ) {
+            this->move2.emplace_back(step);
+        }
+        
+
         return true;
     }
     return false;
@@ -42,9 +75,27 @@ bool Path::pushMove(int step) {
 bool Path::popMove() {
     if (this->move.size() > 0 && Neighbor::back(this->to, this->move.back())) {//如果回退成功
         this->move.pop_back();//减少步骤
+        this->radius.pop_back();//减少半径
         return true;
     }
     return false;
+}
+
+const vector<int>& Path::getMove(int num) const 
+{
+    switch (num)
+    {
+    case 1:
+        return this->move;
+    case 2:
+        return this->move2;
+    case 3:
+        return this->move3;
+    case 4:
+        return this->moveMore;
+    default:
+        throw "move编号非法";
+    }
 }
 
 void Path::print() const {

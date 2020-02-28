@@ -20,7 +20,7 @@ void Calculate::run() {
 
 void Calculate::save()
 {
-    //this->saveImage();
+    this->saveImage();
     //this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,to余荔恒
 }
 
@@ -125,9 +125,9 @@ void Calculate::getPath() {
             const Point& point = points[i];
             if (this->val[point.x][point.y] == 1) {//如果之前的路径没有经过该端点
                 this->val[point.x][point.y] = ++color;//更新节点颜色
-                vector<int> move;
-                this->searchNextPoint(point, move, color);//递归找路径
-                this->paths.emplace_back(Path(point, move));//找到后加入路径数组
+                Path path(point);
+                this->searchNextPoint(point, path, color);//递归找路径
+                this->paths.emplace_back(path);//找到后加入路径数组
                 //取得一个路径，重新搜索并排序端点
                 points.erase(points.begin() + i);
                 this->getPoints(points);
@@ -142,10 +142,10 @@ void Calculate::getPath() {
     for (const Point& point : points) {
         if (this->val[point.x][point.y] == 1) {//如果之前的路径没有经过该端点
             this->val[point.x][point.y] = ++color;//更新节点颜色
-            vector<int> move;
-            this->searchNextPoint(point, move, color);//递归找路径
+            Path path(point);
+            this->searchNextPoint(point, path, color);//递归找路径
 
-            this->paths.emplace_back(Path(point, move));//加入路径数组
+            this->paths.emplace_back(path);//加入路径数组
         }
     }
     /**
@@ -160,15 +160,15 @@ void Calculate::getPath() {
         for (const Point& point : subPoints) {
             if (this->val[point.x][point.y] == 1) {//如果之前的路径没有经过该端点
                 this->val[point.x][point.y] = ++color;//更新节点颜色
-                vector<int> move;
-                this->searchNextPoint(point, move, color);//递归找路径
+                Path path(point);
+                this->searchNextPoint(point, path, color);//递归找路径
 
-                this->paths.emplace_back(Path(point, move));//加入路径数组
+                this->paths.emplace_back(path);//加入路径数组
             }
         }
     }
 }
-void Calculate::searchNextPoint(const Point& now, vector<int>& move, int color) {
+void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
     //找到所有没有走过的邻居
     //map: first 该邻居所属方向 second 该延伸的大概率方向
     map<int, int> unRunNeighbors;
@@ -185,6 +185,7 @@ void Calculate::searchNextPoint(const Point& now, vector<int>& move, int color) 
     int nextStep = DIRECT_NULL;
     if (unRunNeighbors.size() == 1) {//单个分支
         nextStep = unRunNeighbors.begin()->first;
+        if (this->isPathFinished(path, nextStep)) return;
     }
     else {//多个分支
         vector<int> lengths;//每个分支参与计算大概率方向的长度
@@ -246,6 +247,7 @@ void Calculate::searchNextPoint(const Point& now, vector<int>& move, int color) 
          * 根据规律，圆形出发点大概率方向向下
          */
         int preDirect = DIRECT_NULL;
+        const vector<int>& move = path.getMove();
         if (!move.empty()) {
             //寻找已经经过的路径的大概率方向
             vector<int> directs(1, Neighbor::reverse(move.back()));//已递归方向数组
@@ -281,11 +283,11 @@ void Calculate::searchNextPoint(const Point& now, vector<int>& move, int color) 
     }
 
     if (nextStep != DIRECT_NULL) {//如果存在前进方向
-        move.emplace_back(nextStep);
+        path.pushMove(nextStep);
         Point nextPoint = Neighbor::nextOne(now, nextStep);//下一个节点
         this->val[nextPoint.x][nextPoint.y] = color;//更新下一个节点颜色
         //继续递归
-        searchNextPoint(nextPoint, move, color);
+        searchNextPoint(nextPoint, path, color);
     }
 }
 int Calculate::findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& color) {
@@ -362,6 +364,31 @@ bool Calculate::isAllPassed() {
         }
     }
     return true;
+}
+
+bool Calculate::isPathFinished(const Path& path, int nextStep)
+{
+    const vector<int>& move = path.getMove()
+        , move2 = path.getMove(2)
+        , move3 = path.getMove(3)
+        , moveMore = path.getMove(4);
+    /*
+    情况一：
+    横折钩，即有右、下，不能再向左
+    */
+    if (moveMore.size() >= 2 && nextStep == DIRECT_LEFT &&
+        find(moveMore.begin(), moveMore.end(), DIRECT_RIGHT) != moveMore.end() &&
+        find(moveMore.begin(), moveMore.end(), DIRECT_BOTTOM) != moveMore.end()) {
+        return true;
+    }
+    /*
+    情况二：
+    闭环如口，需要第一次下后中断
+    */
+
+
+
+    return false;
 }
 
 void Calculate::printPaths() {
