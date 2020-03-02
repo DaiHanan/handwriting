@@ -94,12 +94,13 @@ private:
      * 递归结束条件：出现两次相同方向或遇到下一个多叉路口
      * 算法：方向数组中首次出现两次相同方向或一次中第一个出现的方向
      * @param now 延伸中的某一点
-     * @param preDirects 延伸到该点之前的点过来的方向数组(相对于now节点)(即无法前进的方向)
+     * @param preDirects 无法继续前进的方向(相对于now节点)(即now节点上一个点来的方向)
      * @param directs 延伸过程中的方向数组
+     * @param minCount 探测大致方向的定义（即出现minLength次算大致方向）
      * @param color 递归时可选像素的颜色
-     * @return 该延伸方向的大概率方向
+     * @return 该延伸方向的大概率方向, 可能无结果，返回DIRECT_NULL（-1）
      */
-    int findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& color = 1);
+    int findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& minCount = 2, const int& color = 1);
     /**
      * 删除邻居中大概率方向相对的邻居对
      * @param unRunNeighbors 邻居
@@ -112,9 +113,10 @@ private:
     bool isAllPassed();
     /**
      * 判断路径是否已满足结束条件
-     * @return 是否结束路径
+     * @return 是否结束路径，-1——无需结束 >= 0 结束时后退的步数
+                
      */
-    bool isPathFinished(const Path& path, int nextStep);
+    int isPathFinished(const Path& path, int nextStep);
 
     /**
      * 计算全部绘制半径

@@ -185,7 +185,18 @@ void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
     int nextStep = DIRECT_NULL;
     if (unRunNeighbors.size() == 1) {//单个分支
         nextStep = unRunNeighbors.begin()->first;
-        if (this->isPathFinished(path, nextStep)) return;
+        int backCount = this->isPathFinished(path, nextStep);//后退步数
+        if (backCount > -1) {//提前结束路径
+            Point backPoint = now;
+            for (int i = 0; i < backCount; i++) {
+                //重置像素color
+                this->val[backPoint.x][backPoint.y] = 1;
+                //后退
+                Neighbor::back(backPoint, path.getStep(-1));
+                path.popMove();
+            }
+            return;
+        }
     }
     else {//多个分支
         vector<int> lengths;//每个分支参与计算大概率方向的长度
@@ -290,7 +301,7 @@ void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
         searchNextPoint(nextPoint, path, color);
     }
 }
-int Calculate::findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& color) {
+int Calculate::findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& minCount, const int& color) {
     //下一个方向和像素
     int nextDirect = -1;
     Point nextPoint;
@@ -307,16 +318,17 @@ int Calculate::findPathMainDirect(const Point& now, const vector<int>& preDirect
             }
         }
     }
-    //如果没有其他分支或有多个分支时退出递归
-    if (nextDirect == -1) {
+    
+    if (nextDirect == -1) {//如果没有其他分支或有多个分支时退出递归
         //此时没有两次以上的方向，返回第一次方向
         return directs.front();
     }
+
     directs.emplace_back(nextDirect);//添加此次方向
-    if (find(directs.begin(), directs.end(), nextDirect) != directs.end()) {//出现大概率方向，退出递归
+    if (count(directs.begin(), directs.end(), nextDirect) >= minCount) {//出现大概率方向，退出递归
         return nextDirect;
     }
-    return findPathMainDirect(nextPoint, { Neighbor::reverse(nextDirect) }, directs);//继续递归
+    return findPathMainDirect(nextPoint, { Neighbor::reverse(nextDirect) }, directs, minCount, color);//继续递归
 }
 void Calculate::deleteOppositeDirectCouples(map<int, int>& unRunNeighbors) {
     auto iter = unRunNeighbors.begin();
@@ -366,7 +378,7 @@ bool Calculate::isAllPassed() {
     return true;
 }
 
-bool Calculate::isPathFinished(const Path& path, int nextStep)
+int Calculate::isPathFinished(const Path& path, int nextStep)
 {
     const vector<int>& move = path.getMove()
         , move2 = path.getMove(2)
@@ -385,7 +397,7 @@ bool Calculate::isPathFinished(const Path& path, int nextStep)
     情况二：
     闭环如口，需要第一次下后中断
     */
-
+    //if(moveMore.size() >= 2 && )
 
 
     return false;

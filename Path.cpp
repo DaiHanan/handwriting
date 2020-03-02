@@ -144,6 +144,7 @@ const Point& Path::getToPoint() const {
 }
 
 int Path::getStep(int idx) const {
-    if (idx > this->move.size() || idx < 0) return DIRECT_NULL;
+    if (idx == -1) idx = this->move.size() - 1;//最后一个
+    if (idx > this->move.size() || idx < -1) return DIRECT_NULL;
     return this->move[idx];
 }

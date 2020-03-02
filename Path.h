@@ -42,7 +42,7 @@ public:
     const Point& getToPoint() const;
     /**
      * 获得某一步方向
-     * @param idx move数组下标
+     * @param idx move数组下标, -1为数组最后一个元素
      * @return 该步方向 DIRECT_NULL则不合法
      */
     int getStep(int idx) const;
