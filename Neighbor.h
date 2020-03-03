@@ -11,6 +11,8 @@
 #define DIRECT_RIGHT_BOTTOM 7
 
 #include "Point.h"
+#include <vector>
+using namespace std;
 
 class Neighbor {
 public:
@@ -68,4 +70,10 @@ public:
      * @return
      */
     static bool isValid(const int& direct);
+    /*
+    返回该方向包括相邻两个相邻方向的数组
+    @param direct 位于中间的方向
+    @return 相邻方向数组
+    */
+    static vector<int> getNeighborArr(const int& direct);
 };

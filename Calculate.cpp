@@ -216,9 +216,10 @@ void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
                 preDirects.emplace_back(Neighbor::reverse((unRunNeighbor.first - 2 + 8) % 8));
             }
             vector<int> directs(1, unRunNeighbor.first);//已递归方向数组
-            unRunNeighbor.second = this->findPathMainDirect(//计算大概率方向
+            int mainDirect = this->findPathMainDirect(//计算大概率方向
                 Neighbor::nextOne(now, unRunNeighbor.first), preDirects, directs
             );
+            unRunNeighbor.second = mainDirect == -1 ? unRunNeighbor.first : mainDirect;
             lengths.emplace_back(directs.size());//更新长度
         }
         /**
@@ -262,13 +263,13 @@ void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
         if (!move.empty()) {
             //寻找已经经过的路径的大概率方向
             vector<int> directs(1, Neighbor::reverse(move.back()));//已递归方向数组
-            preDirect = findPathMainDirect(Neighbor::backOne(now, move.back()), { move.back() }, directs, color);
-            preDirect = Neighbor::reverse(preDirect);//翻转方向，因为是反向推断方向
+            preDirect = findPathMainDirect(Neighbor::backOne(now, move.back()), Neighbor::getNeighborArr(move.back()), directs, 2, false, color);
+            preDirect = preDirect == -1 ? move.back() : Neighbor::reverse(preDirect);//翻转方向，因为是反向推断方向
         }
         else {
             preDirect = DIRECT_BOTTOM;
         }
-
+         
         //寻找前进方向
         //寻找第一个与已经过路径大概率方向相同的方向进行前进
         for (auto& unRunNeighbor : unRunNeighbors) {
@@ -280,13 +281,31 @@ void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
         if (nextStep == DIRECT_NULL) {//如果没有直接相等的方向时
             //过滤相同方向的邻居
             Calculate::deleteOppositeDirectCouples(unRunNeighbors);
-            //最相近的一个方向作为前进方向（暂设方向偏差最大值4）todo
+            //最相近的一个方向作为前进方向（设方向偏差最大值4）
             for (int diff = 1; nextStep == DIRECT_NULL && diff < 4; diff++) {
+                vector<int> nextSteps;//存储可能的方向
                 for (const auto& unRunNeighbor : unRunNeighbors) {
                     if ((unRunNeighbor.second + diff) % 8 == preDirect ||
                         (preDirect + diff) % 8 == unRunNeighbor.second) {//若大概率方向距离为diff
-                        nextStep = unRunNeighbor.first;
-                        break;
+                        nextSteps.emplace_back(unRunNeighbor.first);
+                    }
+                }
+                //扫描是否有可能的方向
+                if (!nextSteps.empty()) {
+                    nextStep = nextSteps[0];//只有一个最可能
+                    if (nextSteps.size() > 1) {//有多个最可能
+                        /*
+                        需要对比该路径之前的大致方向(如果存在，否则直接选可能的第一个)
+                        暂定使用move2（连续两次出现的方向）数组
+                        如果有与move2相同方向的可能方向，优先选择
+                        */
+                        const vector<int>& move2 = path.getMove(2);
+                        for (int i = move2.size() - 1; i >= 0; i--) {
+                            if (find(nextSteps.begin(), nextSteps.end(), move2[i]) != nextSteps.end()) {
+                                nextStep = move2[i];
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -301,14 +320,13 @@ void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
         searchNextPoint(nextPoint, path, color);
     }
 }
-int Calculate::findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& minCount, const int& color) {
+int Calculate::findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& minCount, bool isContinue, const int& color) {
     //下一个方向和像素
     int nextDirect = -1;
-    Point nextPoint;
     //扫描周围像素
     for (int i = 0; i < 8; i++) {
         if (find(preDirects.begin(), preDirects.end(), i) == preDirects.end()) {//方向不为原先方向时
-            nextPoint = Neighbor::nextOne(now, i);//下一个方向像素
+            Point nextPoint = Neighbor::nextOne(now, i);//下一个方向像素
             if (this->checkPoint(nextPoint) && this->val[nextPoint.x][nextPoint.y] == color) {//如果像素合法且没有被走过
                 if (nextDirect != -1) {//如果有多个分支
                     nextDirect = -1;
@@ -320,15 +338,21 @@ int Calculate::findPathMainDirect(const Point& now, const vector<int>& preDirect
     }
     
     if (nextDirect == -1) {//如果没有其他分支或有多个分支时退出递归
-        //此时没有两次以上的方向，返回第一次方向
-        return directs.front();
+        //此时没有两次以上的方向，返回非法方向
+        //return directs.front();
+        return DIRECT_NULL;
     }
 
     directs.emplace_back(nextDirect);//添加此次方向
-    if (count(directs.begin(), directs.end(), nextDirect) >= minCount) {//出现大概率方向，退出递归
+    if (isContinue && //连续时出现大概率方向，退出递归
+        find_if_not(directs.rbegin(), directs.rend(), 
+            [nextDirect](int direct) {return direct == nextDirect; }) - directs.rbegin() >= minCount) {
         return nextDirect;
     }
-    return findPathMainDirect(nextPoint, { Neighbor::reverse(nextDirect) }, directs, minCount, color);//继续递归
+    else if (count(directs.begin(), directs.end(), nextDirect) >= minCount) {//非连续时
+        return nextDirect;
+    }
+    return findPathMainDirect(Neighbor::nextOne(now, nextDirect), Neighbor::getNeighborArr(Neighbor::reverse(nextDirect)), directs, minCount, isContinue, color);//继续递归
 }
 void Calculate::deleteOppositeDirectCouples(map<int, int>& unRunNeighbors) {
     auto iter = unRunNeighbors.begin();
@@ -385,22 +409,30 @@ int Calculate::isPathFinished(const Path& path, int nextStep)
         , move3 = path.getMove(3)
         , moveMore = path.getMove(4);
     /*
-    情况一：
+    情况一：和情况三合并
     横折钩，即有右、下，不能再向左
     */
-    if (moveMore.size() >= 2 && nextStep == DIRECT_LEFT &&
+    /*if (moveMore.size() >= 2 && nextStep == DIRECT_LEFT &&
         find(moveMore.begin(), moveMore.end(), DIRECT_RIGHT) != moveMore.end() &&
         find(moveMore.begin(), moveMore.end(), DIRECT_BOTTOM) != moveMore.end()) {
-        return true;
-    }
+        return 0;
+    }*/
     /*
     情况二：
     闭环如口，需要第一次下后中断
     */
     //if(moveMore.size() >= 2 && )
+    /*
+    情况三
+    向下后极少数会继续转弯
+    */
+    if (!moveMore.empty() && moveMore.back() == DIRECT_BOTTOM 
+        && (move2.back() == DIRECT_LEFT || move2.back() == DIRECT_RIGHT)) {
+        return 2;
+    }
 
 
-    return false;
+    return -1;
 }
 
 void Calculate::printPaths() {

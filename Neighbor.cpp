@@ -158,3 +158,11 @@ bool Neighbor::isValid(const int& direct) {
     return direct >= 0 && direct < 8;
 }
 
+vector<int> Neighbor::getNeighborArr(const int& direct)
+{
+    if (!Neighbor::isValid(direct)) {
+        throw "getNeighborArr 下标不合法";
+    }
+    return {(direct - 1 + 8) % 8, direct, (direct + 1) % 8 };
+}
+

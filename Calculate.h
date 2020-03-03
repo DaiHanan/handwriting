@@ -96,11 +96,12 @@ private:
      * @param now 延伸中的某一点
      * @param preDirects 无法继续前进的方向(相对于now节点)(即now节点上一个点来的方向)
      * @param directs 延伸过程中的方向数组
-     * @param minCount 探测大致方向的定义（即出现minLength次算大致方向）
+     * @param minCount 探测大致方向的定义（即出现minCount次算大致方向）
+     * @param isContinue 出现次数是否需要连续（修改定义）
      * @param color 递归时可选像素的颜色
      * @return 该延伸方向的大概率方向, 可能无结果，返回DIRECT_NULL（-1）
      */
-    int findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& minCount = 2, const int& color = 1);
+    int findPathMainDirect(const Point& now, const vector<int>& preDirects, vector<int>& directs, const int& minCount = 2, bool isContinue = false, const int& color = 1);
     /**
      * 删除邻居中大概率方向相对的邻居对
      * @param unRunNeighbors 邻居

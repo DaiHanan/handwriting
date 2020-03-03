@@ -59,6 +59,7 @@ public:
     bool popMove();
     /**
      * 获得move数组，无法更新
+     * @param num move的步长
      * @return move数组
      */
     const vector<int>& getMove(int num = 1) const;

@@ -14,9 +14,13 @@ Path::Path(const Point& from) {
 
 Path::Path(const Point& from, const vector<int>& move) {
     this->initFromPoint(from);
-    this->move = move;
-    this->radius = vector<float>(this->move.size() + 1);
     this->initToPoint();
+    this->radius = vector<float>(1);
+    for (const int& step : move) {
+        if (!this->pushMove(step)) {
+            throw "初始化路径失败";
+        }
+    }
 }
 
 bool Path::initToPoint() {
@@ -34,22 +38,22 @@ void Path::initFromPoint(const Point& point) {
 
 bool Path::pushMove(int step) {
     vector<int>& move = this->move;
-    int size = move.size();
 
     if (Neighbor::next(this->to, step)) {//如果移动成功
         move.push_back(step);//增加步骤
+        int size = move.size();
         this->radius.emplace_back(0);//扩大半径数组
 
-        //更新连续方向数组
-        if (//出现4次以上，注意会重复出现
-            size > 3 &&
+        //更新连续方向数组，注意会重复出现
+        if (//出现4次以上
+            size > 3 && 
             find_if_not(
                 move.rbegin(), move.rend(), 
-                [step] (int item) {return item == step; }) - move.rbegin() >= 4
+                [step](int item) {return item == step; }) - move.rbegin() >= 4
             ) {
             this->moveMore.emplace_back(step);
         }
-        else if (//出现三次
+        if (//出现三次
             size >= 3 &&
             find_if_not(
                 move.rbegin(), move.rend(),
@@ -57,7 +61,7 @@ bool Path::pushMove(int step) {
             ) {
             this->move3.emplace_back(step);
         }
-        else if (//出现两次次
+        if (//出现两次
             size >= 2 &&
             find_if_not(
                 move.rbegin(), move.rend(),
