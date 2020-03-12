@@ -37,7 +37,7 @@ private:
 
 	int id;//该字体的编号
 
-	const string host = "47.102.149.16";//服务器IP localhost
+	const string host = "localhost";//服务器IP localhost 47.102.149.16
 	const string user = "root";//用户名
 	const string password = "liyulin";//用户密码
 	const string table = "handwriting";//数据库名

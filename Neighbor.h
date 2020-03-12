@@ -12,6 +12,7 @@
 
 #include "Point.h"
 #include <vector>
+#include <string>
 using namespace std;
 
 class Neighbor {
@@ -76,4 +77,8 @@ public:
     @return 相邻方向数组
     */
     static vector<int> getNeighborArr(const int& direct);
+    /*
+    获得方向字符字符串
+    */
+    static string getNeighborString(const int& direct);
 };

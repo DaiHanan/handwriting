@@ -166,3 +166,36 @@ vector<int> Neighbor::getNeighborArr(const int& direct)
     return {(direct - 1 + 8) % 8, direct, (direct + 1) % 8 };
 }
 
+string Neighbor::getNeighborString(const int& direct)
+{
+    string str;
+    switch (direct) {//调转方向
+    case DIRECT_RIGHT://右
+        str = "→";
+        break;
+    case DIRECT_TOP://上
+        str = "↑";
+        break;
+    case DIRECT_LEFT://左
+        str = "←";
+        break;
+    case DIRECT_BOTTOM://下
+        str = "↓";
+        break;
+    case DIRECT_RIGHT_TOP://右上
+        str = "↗";
+        break;
+    case DIRECT_LEFT_TOP://左上
+        str = "↖";
+        break;
+    case DIRECT_LEFT_BOTTOM://左下
+        str = "↙";
+        break;
+    case DIRECT_RIGHT_BOTTOM://右下
+        str = "↘";
+        break;
+    default: str = "※";//动作不合法
+    }
+	return str;
+}
+

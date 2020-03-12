@@ -79,7 +79,7 @@ int MysqlFactory::getNewWordId()
         {
             if (sql_row = mysql_fetch_row(result))//获取具体的数据  
             {
-                return stoi(sql_row[0]);
+                return stoi(sql_row[0]) + 1;
             }
             else {//当前为第一个数据
                 return 1;

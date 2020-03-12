@@ -20,8 +20,15 @@ void Calculate::run() {
 
 void Calculate::save()
 {
+    //手动修正顺序
+   /* auto tmp = paths;
+    vector<int> right = {0,3,1,2,4,5,10,7,13,8,6,9,11,12};
+    for (int i = 0; i < right.size(); i++) {
+        paths[i] = tmp[right[i]];
+    }*/
+
     this->saveImage();
-    //this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,to余荔恒
+    this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,
 }
 
 void Calculate::toThin() {
@@ -517,7 +524,10 @@ void Calculate::saveSql()
         ss >> x >> tmp >> y;
         point = Point(x, y);
     }
-    factory->saveWordInfo(point);
+    if (!factory->saveWordInfo(point)) {
+        cout << "存储字失败" << endl;
+        return;
+    }
     for (const Path& path : this->paths) {
         if (!factory->saveStrokeInfo(path)) {
             cout << endl << path.getFromPoint().x << "," << path.getFromPoint().y << "到" 

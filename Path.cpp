@@ -113,6 +113,14 @@ void Path::print() const {
         }
     }
     ss << ")" << endl;
+    ss << "方向字符串\n(";
+    if (!this->move.empty()) {
+        ss << Neighbor::getNeighborString(this->move[0]);
+        for (int i = 1; i < this->move.size(); i++) {
+            ss << Neighbor::getNeighborString(this->move[i]);
+        }
+    }
+    ss << ")" << endl;
     ss << "半径数组\n(";
     if (!this->radius.empty()) {
         ss << this->radius[0];
