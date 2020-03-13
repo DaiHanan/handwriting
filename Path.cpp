@@ -102,6 +102,41 @@ const vector<int>& Path::getMove(int num) const
     }
 }
 
+void Path::reversePath()
+{
+    //起点终点
+    Point tmpPoint = from;
+    from = to;
+    to = tmpPoint;
+    //半径数组
+    reverse(radius.begin(), radius.end());
+    //方向数组
+    //move
+    vector<int> tmpArr(move.size());
+    for (int i = 0; i < move.size(); i++) {
+        tmpArr[i] = Neighbor::reverse(move[move.size() - i - 1]);
+    }
+    move = tmpArr;
+    //move2
+    tmpArr.resize(move2.size());
+    for (int i = 0; i < move2.size(); i++) {
+        tmpArr[i] = Neighbor::reverse(move2[move2.size() - i - 1]);
+    }
+    move2 = tmpArr;
+    //move3
+    tmpArr.resize(move3.size());
+    for (int i = 0; i < move3.size(); i++) {
+        tmpArr[i] = Neighbor::reverse(move3[move3.size() - i - 1]);
+    }
+    move3 = tmpArr;
+    //moveMore
+    tmpArr.resize(moveMore.size());
+    for (int i = 0; i < moveMore.size(); i++) {
+        tmpArr[i] = Neighbor::reverse(moveMore[moveMore.size() - i - 1]);
+    }
+    moveMore = tmpArr;
+}
+
 void Path::print() const {
     ostringstream& ss = Log::ss;
     ss << "[" << this->from.x << "," << this->from.y << "] →" << "[" << this->to.x << "," << this->to.y << "]" << endl;

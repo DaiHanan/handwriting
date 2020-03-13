@@ -7,7 +7,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     //获得路径      
-    string thinPath = "D:/01_files/05_upward/02_school/02_handwriting/02_pics/page02/words/003(153,488).bmp", sourcePath;
+    string thinPath = "D:/01_files/05_upward/02_school/02_handwriting/02_pics/page02/words/009(693,492).bmp", sourcePath;
     if (argc > 1)
         thinPath = argv[1];
     sourcePath = thinPath.substr(0, thinPath.size() - 4) + "_s.bmp";

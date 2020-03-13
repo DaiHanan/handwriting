@@ -3,6 +3,7 @@
 #include "Point.h"
 #include "Neighbor.h"
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -63,6 +64,10 @@ public:
      * @return move数组
      */
     const vector<int>& getMove(int num = 1) const;
+    /*
+    反转路径，调整笔画
+    */
+    void reversePath();
 
 private:
     Point from, to;//起始和终点

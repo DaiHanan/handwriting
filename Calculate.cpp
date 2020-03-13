@@ -20,12 +20,17 @@ void Calculate::run() {
 
 void Calculate::save()
 {
+    ////手动反转路径
+    //vector<int> idxs = {6,12};
+    //for (int idx : idxs) {
+    //    paths[idx].reversePath();
+    //}
     //手动修正顺序
-   /* auto tmp = paths;
-    vector<int> right = {0,3,1,2,4,5,10,7,13,8,6,9,11,12};
+    auto tmp = paths;
+    vector<int> right = {0,2,1,3,4,5,6};
     for (int i = 0; i < right.size(); i++) {
         paths[i] = tmp[right[i]];
-    }*/
+    }
 
     this->saveImage();
     this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,
@@ -272,6 +277,7 @@ void Calculate::searchNextPoint(const Point& now, Path& path, int color) {
             vector<int> directs(1, Neighbor::reverse(move.back()));//已递归方向数组
             preDirect = findPathMainDirect(Neighbor::backOne(now, move.back()), Neighbor::getNeighborArr(move.back()), directs, 2, false, color);
             preDirect = preDirect == -1 ? move.back() : Neighbor::reverse(preDirect);//翻转方向，因为是反向推断方向
+            //preDirect = move.back();//尝试直接使用之后方向
         }
         else {
             preDirect = DIRECT_BOTTOM;
@@ -433,8 +439,10 @@ int Calculate::isPathFinished(const Path& path, int nextStep)
     情况三
     向下后极少数会继续转弯
     */
-    if (!moveMore.empty() && moveMore.back() == DIRECT_BOTTOM 
-        && (move2.back() == DIRECT_LEFT || move2.back() == DIRECT_RIGHT)) {
+    if (!moveMore.empty() && moveMore.back() == DIRECT_BOTTOM
+        && (move2.back() == DIRECT_LEFT || move2.back() == DIRECT_RIGHT)
+        && find(moveMore.begin(), moveMore.end(), DIRECT_LEFT) != moveMore.end()
+        && find(moveMore.begin(), moveMore.end(), DIRECT_RIGHT) != moveMore.end()) {
         return 2;
     }
 
