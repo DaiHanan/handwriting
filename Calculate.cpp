@@ -26,14 +26,14 @@ void Calculate::save()
     //    paths[idx].reversePath();
     //}
     //手动修正顺序
-    auto tmp = paths;
+    /*auto tmp = paths;
     vector<int> right = {0,2,1,3,4,5,6};
     for (int i = 0; i < right.size(); i++) {
         paths[i] = tmp[right[i]];
-    }
+    }*/
 
     this->saveImage();
-    this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,
+    //this->saveSql();//该行将字体信息存入数据库，取消后请勿重复运行,
 }
 
 void Calculate::toThin() {
